@@ -1,0 +1,49 @@
+msg "DeviceIoControl logger"
+
+$event = 0;
+$ioctl_addr = kernel32.dll:DeviceIoControl + 2
+bp $ioctl_addr
+SetBreakpointCommand $ioctl_addr, "scriptcmd call ioctl_callback"
+ret
+
+ioctl_callback:
+	$hDevice = arg.get(0);
+	$dwIoControlCode = arg.get(1)
+	$lpInBuffer = arg.get(2)
+	$nInBufferSize = arg.get(3)
+	$lpOutBuffer = arg.get(4)
+	$nOutBufferSize = arg.get(5)
+	$lpBytesReturned = arg.get(6)
+	$lpOverlapped = arg.get(7)
+	log "DeviceIoControl({$hDevice}, {$dwIoControlCode}, {$lpInBuffer}, {$nInBufferSize}, {$lpOutBuffer}, {$nOutBufferSize}, {$lpBytesReturned}, {$lpOverlapped})"
+	$buffer_size = 0x20 + $nInBufferSize + $nOutBufferSize
+	alloc $buffer_size
+	$buffer = $result
+	// Copy all eight 32-bit arguments from stack into header.
+	memcpy $buffer, esp + 4, 0x20
+	memcpy $buffer + 0x20, $lpInBuffer, $nInBufferSize
+	// Update the arguments such that the number of bytes written to the output buffer is stored in the header.
+	arg.set(6, $buffer);
+	rtr
+	// Restore the stack.
+	arg.set(6, $lpBytesReturned)
+	// Propagate value to debugee.
+	cmp $lpBytesReturned, 0x00000000
+	je ioctl_before_copy:
+		[$lpBytesReturned] = [$buffer + 0x00]
+	ioctl_before_copy:
+	// Handle IOCTL_SCSI_PASS_THROUGH_DIRECT.
+	cmp $dwIoControlCode, 0x0004D014
+	je ioctl_copy_output_direct
+	ioctl_copy_output:
+		memcpy $buffer + 0x20 + $nInBufferSize, $lpOutBuffer, [$buffer + 0x00]
+		jmp ioctl_after_copy
+	ioctl_copy_output_direct:
+		memcpy $buffer + 0x20 + $nInBufferSize, [$lpInBuffer + 0x14], [$lpInBuffer + 0x0C]
+		jmp ioctl_after_copy
+	ioctl_after_copy:
+		savedata "event_{u:$event}.bin", $buffer, $buffer_size
+		free $buffer
+		$event = $event + 1
+		run
+		ret

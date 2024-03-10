@@ -1,0 +1,18 @@
+Command & Conquer: Tiberian Sun
+640x480x16
+800x600x16
+
+* Remove Safedisc
+* Use Virtual Box + Windows XP
+* Ensure that Hyper-V is disabled in host OS
+* "View" -> uncheck "Auto-resize Guest Display"
+* Set resolution to 640x480x16
+* "View" -> "Virtual Screen 1" -> "Scale to 200%"
+
+
+
+
+
+Nox
+* Remove Safedisc
+* Figure out how to run
