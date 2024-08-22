@@ -1,5 +1,7 @@
 # @joelek/pe
 
+investigate if securom utilizes q subchannel mode-1 q/mode-2 q/mode-3 q
+
 SecuROM 3.17.00 (Diablo II, Ground Control)
 SecuROM 4.54.00 (Empire Earth)
 
