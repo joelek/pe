@@ -1,4 +1,12 @@
-Safedisc 1 uses the undefined region of the Primary Volume Descriptor located at sector 16 to store a byte sequence. The meaning of this sequence is not yet known and it is possible that it's contents are obfuscated.
+# Safedisc 1
+
+## Uneadable sectors
+
+Discs protected by Safedisc contain sectors that have been intentionally made unreadable in order to prevent copying. The unreadable sectors can be as many as 1000 and seem to always be located at the beginning of the disc. Copies can still be made by instructing the copying software to ignore all read errors.
+
+## Byte sequence in PVD
+
+Safedisc uses the undefined region of the Primary Volume Descriptor located at sector 16 to store a byte sequence. The meaning of this sequence is not yet known and it is possible that it's contents are obfuscated.
 
 From "empires2":
 
